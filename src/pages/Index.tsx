@@ -3,6 +3,7 @@ import ChatSidebar from "@/components/ChatSidebar";
 import TiptapEditor from "@/components/Editor";
 import ApiKeyDialog from '@/components/ApiKeyDialog';
 import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import {
   ResizableHandle,
@@ -153,9 +154,10 @@ const Index = () => {
       />
       <div className="h-screen w-screen bg-background text-foreground flex flex-col">
         <Header isMobile={!isDesktop} onMobileChatClick={() => setIsMobileChatOpen(true)} />
-        <main className="flex-grow flex flex-col gap-4 p-4">
+        <main className="flex-grow flex flex-col gap-4 p-4 min-h-0">
           {isDesktop ? desktopLayout : mobileLayout}
         </main>
+        <Footer />
       </div>
     </>
   );

@@ -12,7 +12,10 @@ const Header = ({ isMobile, onMobileChatClick }: HeaderProps) => {
     <header className="flex items-center justify-between p-4 border-b">
       <div className="flex items-center gap-2">
         <img src="/favicon.ico" alt="App Logo" className="h-6 w-6" />
-        <h1 className="text-xl font-bold tracking-tight">AI Collaborative Editor</h1>
+        <div>
+          <h1 className="text-xl font-bold tracking-tight">AI Collaborative Editor</h1>
+          <p className="text-xs text-muted-foreground">shaik suheal ahamed | 12114304</p>
+        </div>
       </div>
       <div className="flex items-center gap-2">
         {isMobile && (
