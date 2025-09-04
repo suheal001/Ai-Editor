@@ -28,6 +28,68 @@ interface ModalState {
 }
 type AiAction = 'improve' | 'shorten' | 'lengthen' | 'table';
 
+// --- AI Toolbar Components (Moved outside the main Index component to prevent re-rendering bugs) ---
+
+const AiButton = ({
+  action,
+  children,
+  onClick,
+  isLoading,
+  activeAction
+}: {
+  action: AiAction;
+  children: React.ReactNode;
+  onClick: (action: AiAction) => void;
+  isLoading: boolean;
+  activeAction: AiAction | null;
+}) => (
+  <Button
+    variant="ghost"
+    size="sm"
+    className="flex items-center gap-2"
+    onMouseDown={(e) => { e.preventDefault(); onClick(action); }}
+    disabled={isLoading}
+  >
+    {isLoading && activeAction === action ? <Loader2 className="h-4 w-4 animate-spin" /> : children}
+  </Button>
+);
+
+const EditorBubbleMenu = ({
+  editor,
+  onAiAction,
+  isLoading,
+  activeAction
+}: {
+  editor: Editor;
+  onAiAction: (action: AiAction) => void;
+  isLoading: boolean;
+  activeAction: AiAction | null;
+}) => {
+  if (!editor) return null;
+
+  return (
+    <BubbleMenu
+      editor={editor}
+      pluginKey="bubbleMenu"
+      tippyOptions={{ duration: 100, appendTo: document.body }}
+      shouldShow={({ view, state }) => {
+        const { selection } = state;
+        return view.hasFocus() && !selection.empty;
+      }}
+    >
+      <div className="p-1 rounded-lg bg-background border shadow-xl flex items-center gap-1">
+        <AiButton action="improve" onClick={onAiAction} isLoading={isLoading} activeAction={activeAction}><Sparkles className="h-4 w-4" /> Improve</AiButton>
+        <AiButton action="shorten" onClick={onAiAction} isLoading={isLoading} activeAction={activeAction}>Shorten</AiButton>
+        <AiButton action="lengthen" onClick={onAiAction} isLoading={isLoading} activeAction={activeAction}>Lengthen</AiButton>
+        <AiButton action="table" onClick={onAiAction} isLoading={isLoading} activeAction={activeAction}><Table className="h-4 w-4" /> To Table</AiButton>
+      </div>
+    </BubbleMenu>
+  );
+};
+
+
+// --- Main Page Component ---
+
 const Index = () => {
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
   const [hasApiKey, setHasApiKey] = useState(false);
@@ -132,40 +194,6 @@ const Index = () => {
     setModalState({ isOpen: false, originalText: '', suggestedText: '', from: 0, to: 0 });
   };
 
-  const triggerAiAction = (e: React.MouseEvent, action: AiAction) => {
-    e.preventDefault();
-    handleAiAction(action);
-  };
-
-  const AiButton = ({ action, children }: { action: AiAction, children: React.ReactNode }) => (
-    <Button variant="ghost" size="sm" className="flex items-center gap-2" onMouseDown={(e) => triggerAiAction(e, action)} disabled={isLoading}>
-      {isLoading && activeAction === action ? <Loader2 className="h-4 w-4 animate-spin" /> : children}
-    </Button>
-  );
-
-  const EditorBubbleMenu = ({ editor }: { editor: Editor | null }) => {
-    if (!editor) return null;
-    return (
-      <BubbleMenu
-        editor={editor}
-        pluginKey="bubbleMenu"
-        tippyOptions={{ duration: 100 }}
-        shouldShow={({ view, state }) => {
-          const { selection } = state;
-          const { empty } = selection;
-          return view.hasFocus() && !empty;
-        }}
-      >
-        <div className="p-1 rounded-lg bg-background border shadow-xl flex items-center gap-1">
-          <AiButton action="improve"><Sparkles className="h-4 w-4" /> Improve</AiButton>
-          <AiButton action="shorten">Shorten</AiButton>
-          <AiButton action="lengthen">Lengthen</AiButton>
-          <AiButton action="table"><Table className="h-4 w-4" /> To Table</AiButton>
-        </div>
-      </BubbleMenu>
-    );
-  };
-
   const desktopLayout = (
     <ResizablePanelGroup direction="horizontal" className="flex-grow rounded-lg border">
       <ResizablePanel defaultSize={70} className="overflow-auto">
@@ -194,7 +222,14 @@ const Index = () => {
   return (
     <>
       <ApiKeyDialog isOpen={isApiKeyModalOpen} onSave={handleSaveApiKey} />
-      <EditorBubbleMenu editor={editor} />
+      {editor && (
+        <EditorBubbleMenu
+          editor={editor}
+          onAiAction={handleAiAction}
+          isLoading={isLoading}
+          activeAction={activeAction}
+        />
+      )}
       <div className="h-screen w-screen bg-background text-foreground flex flex-col">
         <Header isMobile={!isDesktop} onMobileChatClick={() => setIsMobileChatOpen(true)} />
         <main className="flex-grow flex flex-col gap-4 p-4">
