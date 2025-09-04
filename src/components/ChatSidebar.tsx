@@ -55,10 +55,11 @@ const ChatSidebar = ({ editor }: ChatSidebarProps) => {
       let aiResponse = '';
 
       if (isSearchQuery) {
-        // Agent workflow with web search
+        // Agent workflow: If the query looks like a search, use the Tavily API first.
         setMessages(prev => [...prev, { role: 'model', content: `Searching the web for "${currentInput}"...`, type: 'search_step' }]);
         const searchResults = await searchTavily(currentInput);
         
+        // Construct a new prompt for Gemini, providing the search results as context.
         const prompt = `You are an AI writing assistant. Based on the provided web search results, please answer the user's original request.
 
 WEB SEARCH RESULTS:
@@ -74,7 +75,7 @@ ${currentInput}
 Please provide a comprehensive answer based *only* on the search results. If the request implies creating content for the document (e.g., "write a summary"), output ONLY that content. Otherwise, provide a helpful, conversational response.`;
         aiResponse = await runGemini(prompt);
       } else {
-        // Standard workflow
+        // Standard workflow: Use the document's content as context for the AI.
         const documentContent = editor.getText();
         const prompt = `You are an AI writing assistant. Your purpose is to help a user with the document they are writing.
 Here is the full content of their current document for your context:

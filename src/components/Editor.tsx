@@ -47,8 +47,12 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
     try {
       let prompt = '';
       if (action === 'table') {
+        // Specific prompt for converting text to a markdown table.
+        // It explicitly asks for ONLY the table to ensure clean output.
         prompt = `You are a text-to-markdown-table converter. Convert the following text into a single, well-formatted markdown table. Output ONLY the markdown table. Do not include any explanations, introductory text, or markdown code fences.\n\nTEXT TO CONVERT:\n---\n${selectedText}\n---`;
       } else {
+        // General prompt for text modification actions (improve, shorten, lengthen).
+        // The rules enforce a clean output without conversational filler.
         prompt = `You are an AI text editing engine. Your sole task is to perform the following action on the provided text: '${action}'.\n\nRULES:\n- Output ONLY the modified text.\n- Do not include any explanations, apologies, or introductory phrases (e.g., "Sure, here is the improved text:").\n- Preserve the original tone unless the action is 'improve'.\n\nTEXT TO MODIFY:\n---\n${selectedText}\n---`;
       }
       
