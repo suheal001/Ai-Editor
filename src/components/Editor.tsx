@@ -119,7 +119,7 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
               return view.hasFocus() && from !== to;
             }}
           >
-            <div className="p-1 rounded-lg bg-background border shadow-xl flex items-center gap-1">
+            <div className="p-1 rounded-lg bg-background border shadow-xl flex items-center gap-1 z-50">
               <Button variant="ghost" size="sm" className="flex items-center gap-2" onMouseDown={(e) => triggerAiAction(e, 'improve')} disabled={isLoading}>
                 {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                 Improve
