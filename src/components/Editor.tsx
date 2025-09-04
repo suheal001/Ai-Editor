@@ -85,8 +85,17 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
 
   return (
     <div className="relative h-full w-full overflow-y-auto bg-card text-card-foreground rounded-lg">
-      {editor && !modalState.isOpen && (
-        <Tiptap.BubbleMenu editor={editor} tippyOptions={{ duration: 100 }}>
+      {editor && (
+        <Tiptap.BubbleMenu
+          editor={editor}
+          tippyOptions={{ duration: 100 }}
+          shouldShow={() => {
+            if (modalState.isOpen) {
+              return false;
+            }
+            return editor.view.hasFocus() && !editor.state.selection.empty;
+          }}
+        >
           <div className="z-10 flex items-center space-x-1 rounded-md bg-background border p-1 shadow-lg">
             <Button variant="ghost" size="sm" className="flex items-center gap-2" onClick={() => handleAiAction('improve')} disabled={isLoading}>
               {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
