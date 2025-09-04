@@ -10,11 +10,14 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
-import { useEditor } from '@tiptap/react'
+import { useEditor, BubbleMenu } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { BubbleMenu as BubbleMenuExtension } from '@tiptap/extension-bubble-menu'
 import PreviewModal from '@/components/PreviewModal';
-import { EditorBubbleMenu } from '@/components/EditorBubbleMenu';
+import { Button } from '@/components/ui/button';
+import { Sparkles, Table, Loader2 } from 'lucide-react';
+import { runGemini } from '@/lib/gemini';
+import { showError } from '@/utils/toast';
 
 interface ModalState {
   isOpen: boolean;
@@ -24,12 +27,16 @@ interface ModalState {
   to: number;
 }
 
+type AiAction = 'improve' | 'shorten' | 'lengthen' | 'table';
+
 const Index = () => {
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
   const [hasApiKey, setHasApiKey] = useState(false);
   const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeAction, setActiveAction] = useState<AiAction | null>(null);
   const [modalState, setModalState] = useState<ModalState>({
     isOpen: false,
     originalText: '',
@@ -59,7 +66,7 @@ const Index = () => {
     extensions: [
       StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
       BubbleMenuExtension.configure({
-        pluginKey: "bubbleMenu",
+        pluginKey: "aiBubbleMenu",
       }),
     ],
     content: `
@@ -83,8 +90,39 @@ const Index = () => {
     editable: hasApiKey,
   });
 
-  const handleSuggestionReady = (data: Omit<ModalState, 'isOpen'>) => {
-    setModalState({ ...data, isOpen: true });
+  const handleAiAction = async (action: AiAction) => {
+    if (!editor || isLoading) return;
+    const { from, to } = editor.state.selection;
+    const selectedText = editor.state.doc.textBetween(from, to);
+
+    if (!selectedText.trim()) {
+      showError("Please select text to perform an AI action.");
+      return;
+    }
+
+    setIsLoading(true);
+    setActiveAction(action);
+
+    try {
+      let prompt = '';
+      if (action === 'table') {
+        prompt = `You are a text-to-markdown-table converter. Convert the following text into a single, well-formatted markdown table. Output ONLY the markdown table. Do not include any explanations, introductory text, or markdown code fences.\n\nTEXT TO CONVERT:\n---\n${selectedText}\n---`;
+      } else {
+        prompt = `You are an AI text editing engine. Your sole task is to perform the following action on the provided text: '${action}'.\n\nRULES:\n- Output ONLY the modified text.\n- Do not include any explanations, apologies, or introductory phrases (e.g., "Sure, here is the improved text:").\n- Preserve the original tone unless the action is 'improve'.\n\nTEXT TO MODIFY:\n---\n${selectedText}\n---`;
+      }
+      const result = await runGemini(prompt);
+      if (!result || !result.trim()) {
+        showError("The AI returned an empty response. Please try again.");
+        return;
+      }
+      setModalState({ isOpen: true, originalText: selectedText, suggestedText: result.trim(), from, to });
+    } catch (error) {
+      console.error("AI Action Error:", error);
+      showError("AI action failed. Please check your API key and connection.");
+    } finally {
+      setIsLoading(false);
+      setActiveAction(null);
+    }
   };
 
   const handleConfirm = () => {
@@ -97,6 +135,18 @@ const Index = () => {
   const handleCloseModal = () => {
     setModalState({ isOpen: false, originalText: '', suggestedText: '', from: 0, to: 0 });
   };
+
+  const AiButton = ({ action, children }: { action: AiAction; children: React.ReactNode; }) => (
+    <Button
+      variant="ghost"
+      size="sm"
+      className="flex items-center gap-2"
+      onMouseDown={(e) => { e.preventDefault(); handleAiAction(action); }}
+      disabled={isLoading}
+    >
+      {isLoading && activeAction === action ? <Loader2 className="h-4 w-4 animate-spin" /> : children}
+    </Button>
+  );
 
   const desktopLayout = (
     <ResizablePanelGroup direction="horizontal" className="flex-grow rounded-lg border">
@@ -127,10 +177,17 @@ const Index = () => {
     <>
       <ApiKeyDialog isOpen={isApiKeyModalOpen} onSave={handleSaveApiKey} />
       {editor && (
-        <EditorBubbleMenu
+        <BubbleMenu
           editor={editor}
-          onSuggestionReady={handleSuggestionReady}
-        />
+          pluginKey="aiBubbleMenu"
+          tippyOptions={{ duration: 100, appendTo: () => document.body }}
+          className="p-1 rounded-lg bg-background border shadow-xl flex items-center gap-1 z-50"
+        >
+          <AiButton action="improve"><Sparkles className="h-4 w-4" /> Improve</AiButton>
+          <AiButton action="shorten">Shorten</AiButton>
+          <AiButton action="lengthen">Lengthen</AiButton>
+          <AiButton action="table"><Table className="h-4 w-4" /> To Table</AiButton>
+        </BubbleMenu>
       )}
       <div className="h-screen w-screen bg-background text-foreground flex flex-col">
         <Header isMobile={!isDesktop} onMobileChatClick={() => setIsMobileChatOpen(true)} />
