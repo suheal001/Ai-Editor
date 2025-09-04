@@ -1,6 +1,6 @@
 import * as Tiptap from '@tiptap/react'
 import { Button } from './ui/button'
-import { Loader2, Sparkles, Table } from 'lucide-react'
+import { Sparkles, Table } from 'lucide-react'
 import { useState } from 'react'
 import { runGemini } from '@/lib/gemini'
 import { showError } from '@/utils/toast'
@@ -96,17 +96,32 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
             return editor.view.hasFocus() && !editor.state.selection.empty;
           }}
         >
-          <div className="z-10 flex items-center space-x-1 rounded-md bg-background border p-1 shadow-lg">
-            <Button variant="ghost" size="sm" className="flex items-center gap-2" onClick={() => handleAiAction('improve')} disabled={isLoading}>
-              {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-              Improve
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => handleAiAction('shorten')} disabled={isLoading}>Shorten</Button>
-            <Button variant="ghost" size="sm" onClick={() => handleAiAction('lengthen')} disabled={isLoading}>Lengthen</Button>
-            <Button variant="ghost" size="sm" className="flex items-center gap-2" onClick={() => handleAiAction('table')} disabled={isLoading}>
-              <Table className="h-4 w-4" />
-              To Table
-            </Button>
+          <div
+            className="p-0.5 rounded-lg bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 animate-gradient-move"
+            style={{ backgroundSize: '400% 400%' }}
+          >
+            <div className="flex items-center space-x-1 rounded-md bg-background p-1">
+              {isLoading ? (
+                <div className="flex items-center justify-center px-3 py-1">
+                  <div className="h-6 w-6 rounded-full bg-gradient-to-br from-purple-400 to-pink-600 flex items-center justify-center animate-pulse">
+                    <Sparkles className="h-4 w-4 text-white" />
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <Button variant="ghost" size="sm" className="flex items-center gap-2" onClick={() => handleAiAction('improve')}>
+                    <Sparkles className="h-4 w-4" />
+                    Improve
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => handleAiAction('shorten')}>Shorten</Button>
+                  <Button variant="ghost" size="sm" onClick={() => handleAiAction('lengthen')}>Lengthen</Button>
+                  <Button variant="ghost" size="sm" className="flex items-center gap-2" onClick={() => handleAiAction('table')}>
+                    <Table className="h-4 w-4" />
+                    To Table
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
         </Tiptap.BubbleMenu>
       )}
