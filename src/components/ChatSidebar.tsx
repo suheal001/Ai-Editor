@@ -49,7 +49,19 @@ const ChatSidebar = ({ editor }: ChatSidebarProps) => {
 
     try {
       const documentContent = editor.getText();
-      const prompt = `You are an AI writing assistant. The user is working on the following document:\n\n---\n${documentContent}\n---\n\nThe user's message is: "${input}". Respond to the user. If you suggest new content, provide only the text that should be inserted.`;
+      const prompt = `You are an AI writing assistant. Your purpose is to help a user with the document they are writing.
+
+Here is the full content of their current document for your context:
+---
+${documentContent}
+---
+
+Here is the user's request:
+---
+${input}
+---
+
+Please respond to the user's request. If your response is content that should be inserted directly into the document, you MUST output ONLY that content, without any conversational phrases like "Sure, here you go:" or "Here is the text you requested:".`;
       
       const aiResponse = await runGemini(prompt);
       const modelMessage: Message = { role: 'model', content: aiResponse };
