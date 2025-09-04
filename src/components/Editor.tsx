@@ -105,7 +105,10 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
           </Button>
           <Tiptap.BubbleMenu
             editor={editor}
-            tippyOptions={{ duration: 100 }}
+            tippyOptions={{ 
+              duration: 100,
+              appendTo: () => document.body,
+            }}
             shouldShow={({ editor }) => {
               return editor.view.hasFocus() && !editor.state.selection.empty;
             }}
