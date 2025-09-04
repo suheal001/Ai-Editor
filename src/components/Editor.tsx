@@ -146,7 +146,6 @@ ${selectedText}
             <div
               className="p-0.5 rounded-lg bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 animate-gradient-move"
               style={{ backgroundSize: '400% 400%' }}
-              onMouseDown={(e) => e.preventDefault()}
             >
               <div className="flex flex-wrap items-center gap-1 rounded-md bg-background p-1">
                 {isLoading || modalState.isOpen ? (
