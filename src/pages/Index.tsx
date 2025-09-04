@@ -1,17 +1,27 @@
-// Update this page (the content is just a fallback if you fail to update the page)
-
-import { MadeWithDyad } from "@/components/made-with-dyad";
+import ChatSidebar from "@/components/ChatSidebar";
+import TiptapEditor from "@/components/Editor";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">
-          Start building your amazing project here!
-        </p>
-      </div>
-      <MadeWithDyad />
+    <div className="h-screen w-screen bg-background text-foreground p-4 flex flex-col gap-4">
+      <header className="text-center">
+        <h1 className="text-2xl font-bold">Live Collaborative Editor</h1>
+        <p className="text-muted-foreground">Select text in the editor to see AI options.</p>
+      </header>
+      <ResizablePanelGroup direction="horizontal" className="flex-grow rounded-lg border">
+        <ResizablePanel defaultSize={70}>
+          <TiptapEditor />
+        </ResizablePanel>
+        <ResizableHandle withHandle />
+        <ResizablePanel defaultSize={30} minSize={20}>
+          <ChatSidebar />
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </div>
   );
 };
