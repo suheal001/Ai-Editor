@@ -22,6 +22,7 @@ type AiAction = 'improve' | 'shorten' | 'lengthen' | 'table';
 
 const TiptapEditor = ({ editor }: TiptapEditorProps) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [activeAction, setActiveAction] = useState<AiAction | null>(null);
   const [modalState, setModalState] = useState<ModalState>({
     isOpen: false,
     originalText: '',
@@ -36,12 +37,13 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
     const { from, to } = editor.state.selection;
     const selectedText = editor.state.doc.textBetween(from, to);
 
-    if (!selectedText) {
+    if (!selectedText.trim()) {
       showError("Please select text to perform an AI action.");
       return;
     }
 
     setIsLoading(true);
+    setActiveAction(action);
     try {
       let prompt = '';
       if (action === 'table') {
@@ -52,7 +54,7 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
       
       const result = await runGemini(prompt);
 
-      if (!result || result.trim() === '') {
+      if (!result || !result.trim()) {
         showError("The AI returned an empty response. Please try again.");
         return;
       }
@@ -70,6 +72,7 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
       showError("AI action failed. Please check your API key and connection.");
     } finally {
       setIsLoading(false);
+      setActiveAction(null);
     }
   };
 
@@ -92,6 +95,12 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
     e.preventDefault();
     handleAiAction(action);
   };
+
+  const AiButton = ({ action, children }: { action: AiAction, children: React.ReactNode }) => (
+    <Button variant="ghost" size="sm" className="flex items-center gap-2" onMouseDown={(e) => triggerAiAction(e, action)} disabled={isLoading}>
+      {isLoading && activeAction === action ? <Loader2 className="h-4 w-4 animate-spin" /> : children}
+    </Button>
+  );
 
   return (
     <div className="relative h-full w-full overflow-y-auto bg-card text-card-foreground rounded-lg">
@@ -120,20 +129,14 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
             }}
           >
             <div className="p-1 rounded-lg bg-background border shadow-xl flex items-center gap-1 z-50">
-              <Button variant="ghost" size="sm" className="flex items-center gap-2" onMouseDown={(e) => triggerAiAction(e, 'improve')} disabled={isLoading}>
-                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                Improve
-              </Button>
-              <Button variant="ghost" size="sm" onMouseDown={(e) => triggerAiAction(e, 'shorten')} disabled={isLoading}>
-                Shorten
-              </Button>
-              <Button variant="ghost" size="sm" onMouseDown={(e) => triggerAiAction(e, 'lengthen')} disabled={isLoading}>
-                Lengthen
-              </Button>
-              <Button variant="ghost" size="sm" className="flex items-center gap-2" onMouseDown={(e) => triggerAiAction(e, 'table')} disabled={isLoading}>
-                <Table className="h-4 w-4" />
-                To Table
-              </Button>
+              <AiButton action="improve">
+                <Sparkles className="h-4 w-4" /> Improve
+              </AiButton>
+              <AiButton action="shorten">Shorten</AiButton>
+              <AiButton action="lengthen">Lengthen</AiButton>
+              <AiButton action="table">
+                <Table className="h-4 w-4" /> To Table
+              </AiButton>
             </div>
           </Tiptap.BubbleMenu>
         </>
