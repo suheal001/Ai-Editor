@@ -9,7 +9,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { BubbleMenu as BubbleMenuExtension } from '@tiptap/extension-bubble-menu'
@@ -40,7 +40,9 @@ const Index = () => {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
-      BubbleMenuExtension,
+      BubbleMenuExtension.configure({
+        pluginKey: "bubbleMenu",
+      }),
     ],
     content: `
       <h1>Welcome to your AI-Powered Editor!</h1>
