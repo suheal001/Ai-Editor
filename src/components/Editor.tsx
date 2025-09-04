@@ -137,6 +137,7 @@ ${selectedText}
             tippyOptions={{ 
               duration: 100,
               appendTo: () => document.body,
+              interactive: true,
             }}
             shouldShow={({ editor }) => {
               return editor.view.hasFocus() && !editor.state.selection.empty;
