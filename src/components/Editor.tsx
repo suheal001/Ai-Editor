@@ -122,15 +122,6 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
               appendTo: () => document.body,
               interactive: true,
             }}
-            // Explicitly define when the menu should show
-            shouldShow={({ editor, view, state, from, to }) => {
-              // Don't show if the editor is not focused
-              if (!view.hasFocus()) {
-                return false;
-              }
-              // Don't show if the selection is empty
-              return from !== to;
-            }}
           >
             <div className="p-1 rounded-lg bg-background border shadow-xl flex items-center gap-1 z-50">
               <AiButton action="improve">
