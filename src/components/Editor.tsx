@@ -124,8 +124,12 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
                 {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                 Improve
               </Button>
-              <Button variant="ghost" size="sm" onMouseDown={(e) => triggerAiAction(e, 'shorten')} disabled={isLoading}>Shorten</Button>
-              <Button variant="ghost" size="sm" onMouseDown={(e) => triggerAiAction(e, 'lengthen')} disabled={isLoading}>Lengthen</Button>
+              <Button variant="ghost" size="sm" onMouseDown={(e) => triggerAiAction(e, 'shorten')} disabled={isLoading}>
+                Shorten
+              </Button>
+              <Button variant="ghost" size="sm" onMouseDown={(e) => triggerAiAction(e, 'lengthen')} disabled={isLoading}>
+                Lengthen
+              </Button>
               <Button variant="ghost" size="sm" className="flex items-center gap-2" onMouseDown={(e) => triggerAiAction(e, 'table')} disabled={isLoading}>
                 <Table className="h-4 w-4" />
                 To Table
