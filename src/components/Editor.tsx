@@ -103,7 +103,7 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
   );
 
   return (
-    <div className="relative h-full w-full overflow-y-auto bg-card text-card-foreground rounded-lg">
+    <div className="relative h-full w-full bg-card text-card-foreground rounded-lg">
       {editor && (
         <>
           <Button
@@ -120,10 +120,10 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
             tippyOptions={{
               duration: 100,
               appendTo: () => document.body,
-              interactive: true,
             }}
+            pluginKey="bubbleMenu"
           >
-            <div className="p-1 rounded-lg bg-background border shadow-xl flex items-center gap-1 z-50">
+            <div className="p-1 rounded-lg bg-background border shadow-xl flex items-center gap-1">
               <AiButton action="improve">
                 <Sparkles className="h-4 w-4" /> Improve
               </AiButton>
@@ -136,7 +136,7 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
           </BubbleMenu>
         </>
       )}
-      <EditorContent editor={editor} />
+      <EditorContent editor={editor} className="h-full" />
       <PreviewModal
         isOpen={modalState.isOpen}
         onClose={handleCloseModal}
