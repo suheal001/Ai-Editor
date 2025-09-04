@@ -108,7 +108,7 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
           </Button>
           <Tiptap.BubbleMenu
             editor={editor}
-            pluginKey="ai-bubble-menu"
+            pluginKey="bubbleMenu"
             tippyOptions={{
               duration: 100,
               appendTo: () => document.body,
