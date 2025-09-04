@@ -73,11 +73,6 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
     }
   };
 
-  const onAiActionClick = (e: React.MouseEvent, action: AiAction) => {
-    e.preventDefault(); // This is the critical fix to prevent the editor from losing focus.
-    handleAiAction(action);
-  };
-
   const handleConfirm = () => {
     if (!editor) return;
     const { from, to, suggestedText } = modalState;
@@ -120,13 +115,13 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
             }}
           >
             <div className="p-1 rounded-lg bg-background border shadow-xl flex items-center gap-1">
-              <Button variant="ghost" size="sm" className="flex items-center gap-2" onClick={(e) => onAiActionClick(e, 'improve')} disabled={isLoading}>
+              <Button variant="ghost" size="sm" className="flex items-center gap-2" onMouseDown={(e) => e.preventDefault()} onClick={() => handleAiAction('improve')} disabled={isLoading}>
                 {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                 Improve
               </Button>
-              <Button variant="ghost" size="sm" onClick={(e) => onAiActionClick(e, 'shorten')} disabled={isLoading}>Shorten</Button>
-              <Button variant="ghost" size="sm" onClick={(e) => onAiActionClick(e, 'lengthen')} disabled={isLoading}>Lengthen</Button>
-              <Button variant="ghost" size="sm" className="flex items-center gap-2" onClick={(e) => onAiActionClick(e, 'table')} disabled={isLoading}>
+              <Button variant="ghost" size="sm" onMouseDown={(e) => e.preventDefault()} onClick={() => handleAiAction('shorten')} disabled={isLoading}>Shorten</Button>
+              <Button variant="ghost" size="sm" onMouseDown={(e) => e.preventDefault()} onClick={() => handleAiAction('lengthen')} disabled={isLoading}>Lengthen</Button>
+              <Button variant="ghost" size="sm" className="flex items-center gap-2" onMouseDown={(e) => e.preventDefault()} onClick={() => handleAiAction('table')} disabled={isLoading}>
                 <Table className="h-4 w-4" />
                 To Table
               </Button>
