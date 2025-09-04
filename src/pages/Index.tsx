@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/resizable";
 import { useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
-// Use an alias to distinguish the extension from the component
 import { BubbleMenu as BubbleMenuExtension } from '@tiptap/extension-bubble-menu'
 
 const Index = () => {
@@ -40,10 +39,8 @@ const Index = () => {
           levels: [1, 2, 3],
         },
       }),
-      // Configure the extension that powers the floating menu
-      BubbleMenuExtension.configure({
-        pluginKey: "bubbleMenu",
-      }),
+      // The extension that powers the floating menu
+      BubbleMenuExtension,
     ],
     content: `
       <h1>Welcome to your AI-Powered Editor!</h1>

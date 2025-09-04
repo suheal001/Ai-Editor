@@ -117,15 +117,10 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
           </Button>
           <BubbleMenu
             editor={editor}
-            pluginKey="bubbleMenu"
             tippyOptions={{
               duration: 100,
               appendTo: () => document.body,
               interactive: true,
-            }}
-            shouldShow={({ view, state }) => {
-              const { from, to } = state.selection;
-              return view.hasFocus() && from !== to;
             }}
           >
             <div className="p-1 rounded-lg bg-background border shadow-xl flex items-center gap-1 z-50">
