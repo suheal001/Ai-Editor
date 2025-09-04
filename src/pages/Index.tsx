@@ -1,5 +1,7 @@
+import { useState, useEffect } from 'react';
 import ChatSidebar from "@/components/ChatSidebar";
 import TiptapEditor from "@/components/Editor";
+import ApiKeyDialog from '@/components/ApiKeyDialog';
 import {
   ResizableHandle,
   ResizablePanel,
@@ -10,6 +12,27 @@ import StarterKit from '@tiptap/starter-kit'
 import { BubbleMenu } from '@tiptap/extension-bubble-menu'
 
 const Index = () => {
+  const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
+  const [hasApiKey, setHasApiKey] = useState(false);
+
+  useEffect(() => {
+    const key = localStorage.getItem('gemini_api_key');
+    if (!key) {
+      setIsApiKeyModalOpen(true);
+      setHasApiKey(false);
+    } else {
+      setHasApiKey(true);
+    }
+  }, []);
+
+  const handleSaveApiKey = (apiKey: string) => {
+    localStorage.setItem('gemini_api_key', apiKey);
+    setHasApiKey(true);
+    setIsApiKeyModalOpen(false);
+    // Reload to ensure the gemini client is re-initialized with the new key
+    window.location.reload();
+  };
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -39,24 +62,30 @@ const Index = () => {
         class: 'prose dark:prose-invert max-w-none p-6 focus:outline-none h-full',
       },
     },
+    editable: hasApiKey,
   })
 
   return (
-    <div className="h-screen w-screen bg-background text-foreground p-4 flex flex-col gap-4">
-      <header className="text-center">
-        <h1 className="text-2xl font-bold">Live Collaborative Editor</h1>
-        <p className="text-muted-foreground">Select text in the editor to see AI options.</p>
-      </header>
-      <ResizablePanelGroup direction="horizontal" className="flex-grow rounded-lg border">
-        <ResizablePanel defaultSize={70}>
-          <TiptapEditor editor={editor} />
-        </ResizablePanel>
-        <ResizableHandle withHandle />
-        <ResizablePanel defaultSize={30} minSize={20}>
-          <ChatSidebar editor={editor} />
-        </ResizablePanel>
-      </ResizablePanelGroup>
-    </div>
+    <>
+      <ApiKeyDialog isOpen={isApiKeyModalOpen} onSave={handleSaveApiKey} />
+      <div className="h-screen w-screen bg-background text-foreground p-4 flex flex-col gap-4">
+        <header className="text-center">
+          <h1 className="text-2xl font-bold">Live Collaborative Editor</h1>
+          <p className="text-muted-foreground">
+            {hasApiKey ? "Select text in the editor to see AI options." : "Please enter your Gemini API key to enable AI features."}
+          </p>
+        </header>
+        <ResizablePanelGroup direction="horizontal" className="flex-grow rounded-lg border">
+          <ResizablePanel defaultSize={70}>
+            <TiptapEditor editor={editor} />
+          </ResizablePanel>
+          <ResizableHandle withHandle />
+          <ResizablePanel defaultSize={30} minSize={20}>
+            <ChatSidebar editor={editor} />
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </div>
+    </>
   );
 };
 
