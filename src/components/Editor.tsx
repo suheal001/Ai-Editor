@@ -89,10 +89,7 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
         <Tiptap.BubbleMenu
           editor={editor}
           tippyOptions={{ duration: 100 }}
-          shouldShow={() => {
-            if (modalState.isOpen) {
-              return false;
-            }
+          shouldShow={({ editor }) => {
             return editor.view.hasFocus() && !editor.state.selection.empty;
           }}
         >
@@ -101,7 +98,7 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
             style={{ backgroundSize: '400% 400%' }}
           >
             <div className="flex items-center space-x-1 rounded-md bg-background p-1">
-              {isLoading ? (
+              {isLoading || modalState.isOpen ? (
                 <div className="flex items-center justify-center px-3 py-1">
                   <div className="h-6 w-6 rounded-full bg-gradient-to-br from-purple-400 to-pink-600 flex items-center justify-center animate-pulse">
                     <Sparkles className="h-4 w-4 text-white" />
