@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useState, useRef, useEffect } from 'react'
 import { runGemini } from '@/lib/gemini'
-import { searchTavily } from '@/lib/tavily'
+import { searchSerper } from '@/lib/serper'
 import { showError, showSuccess } from '@/utils/toast'
 import * as Tiptap from '@tiptap/react'
 import { Avatar, AvatarFallback } from './ui/avatar'
@@ -57,7 +57,7 @@ const ChatSidebar = ({ editor }: ChatSidebarProps) => {
 
       if (isSearchQuery) {
         setMessages(prev => [...prev, { role: 'model', content: `Searching the web for "${currentInput}"...`, type: 'search_step' }]);
-        const searchResults = await searchTavily(currentInput);
+        const searchResults = await searchSerper(currentInput);
         const prompt = `You are an AI writing assistant. Based on the provided web search results, please answer the user's original request.\n\nWEB SEARCH RESULTS:\n---\n${searchResults}\n---\n\nUSER'S REQUEST:\n---\n${currentInput}\n---\n\nPlease provide a comprehensive answer based *only* on the search results. If the request implies creating content for the document (e.g., "write a summary"), output ONLY that content. Otherwise, provide a helpful, conversational response.`;
         aiResponse = await runGemini(prompt);
       } else {
