@@ -1,4 +1,4 @@
-import * as Tiptap from '@tiptap/react'
+import { type Editor, EditorContent, BubbleMenu } from '@tiptap/react'
 import { Button } from './ui/button'
 import { Sparkles, Table, Trash2, Loader2 } from 'lucide-react'
 import { useState } from 'react'
@@ -7,7 +7,7 @@ import { showError } from '@/utils/toast'
 import PreviewModal from './PreviewModal'
 
 interface TiptapEditorProps {
-  editor: Tiptap.Editor | null;
+  editor: Editor | null;
 }
 
 interface ModalState {
@@ -115,7 +115,7 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
           >
             <Trash2 className="h-4 w-4" />
           </Button>
-          <Tiptap.BubbleMenu
+          <BubbleMenu
             editor={editor}
             pluginKey="bubbleMenu"
             tippyOptions={{
@@ -138,10 +138,10 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
                 <Table className="h-4 w-4" /> To Table
               </AiButton>
             </div>
-          </Tiptap.BubbleMenu>
+          </BubbleMenu>
         </>
       )}
-      <Tiptap.EditorContent editor={editor} />
+      <EditorContent editor={editor} />
       <PreviewModal
         isOpen={modalState.isOpen}
         onClose={handleCloseModal}
