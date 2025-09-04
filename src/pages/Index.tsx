@@ -66,9 +66,6 @@ const Index = () => {
       StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
       BubbleMenuExtension.configure({
         pluginKey: "bubbleMenu",
-        tippyOptions: {
-          appendTo: () => document.body,
-        }
       }),
     ],
     content: `
@@ -86,7 +83,7 @@ const Index = () => {
     `,
     editorProps: {
       attributes: {
-        class: 'prose dark:prose-invert max-w-none p-6 focus:outline-none h-full overflow-y-auto',
+        class: 'prose dark:prose-invert max-w-none p-6 focus:outline-none h-full',
       },
     },
     editable: hasApiKey,
@@ -152,7 +149,7 @@ const Index = () => {
       <BubbleMenu
         editor={editor}
         pluginKey="bubbleMenu"
-        tippyOptions={{ duration: 100, appendTo: () => document.body }}
+        tippyOptions={{ duration: 100 }}
         shouldShow={({ view, state }) => {
           const { selection } = state;
           const { empty } = selection;
@@ -171,17 +168,25 @@ const Index = () => {
 
   const desktopLayout = (
     <ResizablePanelGroup direction="horizontal" className="flex-grow rounded-lg border">
-      <ResizablePanel defaultSize={70}><TiptapEditor editor={editor} /></ResizablePanel>
+      <ResizablePanel defaultSize={70} className="overflow-auto">
+        <TiptapEditor editor={editor} />
+      </ResizablePanel>
       <ResizableHandle withHandle />
-      <ResizablePanel defaultSize={30} minSize={20}><ChatSidebar editor={editor} /></ResizablePanel>
+      <ResizablePanel defaultSize={30} minSize={20}>
+        <ChatSidebar editor={editor} />
+      </ResizablePanel>
     </ResizablePanelGroup>
   );
 
   const mobileLayout = (
     <div className="flex-grow flex flex-col min-h-0">
-      <div className="flex-grow border rounded-lg overflow-hidden"><TiptapEditor editor={editor} /></div>
+      <div className="flex-grow border rounded-lg overflow-auto">
+        <TiptapEditor editor={editor} />
+      </div>
       <Drawer open={isMobileChatOpen} onOpenChange={setIsMobileChatOpen}>
-        <DrawerContent className="h-[75vh]"><ChatSidebar editor={editor} /></DrawerContent>
+        <DrawerContent className="h-[75vh]">
+          <ChatSidebar editor={editor} />
+        </DrawerContent>
       </Drawer>
     </div>
   );
