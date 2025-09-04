@@ -25,12 +25,8 @@ const ChatSidebar = ({ editor }: ChatSidebarProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }
-
   useEffect(() => {
-    scrollToBottom();
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
 
   const handleInsert = (content: string) => {
@@ -53,16 +49,15 @@ const ChatSidebar = ({ editor }: ChatSidebarProps) => {
 
     try {
       const documentContent = editor.getText();
-      const prompt = `You are an AI writing assistant. The user is working on the following document:\n\n---\n${documentContent}\n---\n\nThe user has sent you the following message: "${input}". Respond to the user's message. If you suggest new content or changes for the document, provide only the text that should be inserted. The user will have a button to insert your response directly into the editor. Do not include conversational fluff like "Sure, here is the text:" if you are providing content for the document.`;
+      const prompt = `You are an AI writing assistant. The user is working on the following document:\n\n---\n${documentContent}\n---\n\nThe user's message is: "${input}". Respond to the user. If you suggest new content, provide only the text that should be inserted.`;
       
       const aiResponse = await runGemini(prompt);
       const modelMessage: Message = { role: 'model', content: aiResponse };
       setMessages(prev => [...prev, modelMessage]);
-    } catch (error)
-      {
+    } catch (error) {
       console.error("AI Chat Error:", error);
-      showError("The AI assistant is not available. Please check your Gemini API key and network connection.");
-      setMessages(prev => prev.slice(0, -1)); // Remove user message on error
+      showError("The AI assistant is unavailable. Please check your API key.");
+      setMessages(prev => prev.filter(msg => msg !== userMessage)); // Remove user message on error
     } finally {
       setIsLoading(false);
     }
@@ -70,10 +65,10 @@ const ChatSidebar = ({ editor }: ChatSidebarProps) => {
 
   return (
     <div className="h-full p-2 pl-0">
-      <Card className="h-full flex flex-col border-0">
+      <Card className="h-full flex flex-col border-0 shadow-none">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Sparkles className="h-5 w-5 text-primary" />
             AI Assistant
           </CardTitle>
         </CardHeader>
@@ -83,15 +78,15 @@ const ChatSidebar = ({ editor }: ChatSidebarProps) => {
               {messages.map((message, index) => (
                 <div key={index} className={`flex items-start gap-3 ${message.role === 'user' ? 'justify-end' : ''}`}>
                    {message.role === 'user' ? (
-                    <div className="p-3 rounded-lg bg-primary text-primary-foreground">
+                    <div className="p-3 rounded-lg bg-primary text-primary-foreground max-w-xs">
                       <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                     </div>
                   ) : (
                     <div className="flex flex-col gap-2 w-full">
-                      <div className="p-3 rounded-lg bg-muted text-muted-foreground">
+                      <div className="p-3 rounded-lg bg-muted text-muted-foreground max-w-xs">
                         <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                       </div>
-                      {index > 0 && ( // Don't show for initial message
+                      {index > 0 && (
                         <div className="flex justify-start">
                           <Button variant="outline" size="sm" className="flex items-center gap-2" onClick={() => handleInsert(message.content)}>
                             <CopyPlus className="h-4 w-4" />
@@ -127,7 +122,6 @@ const ChatSidebar = ({ editor }: ChatSidebarProps) => {
             />
             <Button type="submit" size="icon" disabled={isLoading || !editor}>
               <Send className="h-4 w-4" />
-              <span className="sr-only">Send</span>
             </Button>
           </form>
         </CardFooter>
@@ -136,4 +130,4 @@ const ChatSidebar = ({ editor }: ChatSidebarProps) => {
   )
 }
 
-export default ChatSidebar
+export default ChatSidebar;

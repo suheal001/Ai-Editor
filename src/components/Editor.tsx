@@ -1,6 +1,6 @@
 import * as Tiptap from '@tiptap/react'
 import { Button } from './ui/button'
-import { Sparkles, Table, Trash2 } from 'lucide-react'
+import { Sparkles, Table, Trash2, Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { runGemini } from '@/lib/gemini'
 import { showError } from '@/utils/toast'
@@ -29,7 +29,7 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
   });
 
   const handleAiAction = async (action: 'improve' | 'shorten' | 'lengthen' | 'table') => {
-    if (!editor) return;
+    if (!editor || isLoading) return;
 
     const { from, to } = editor.state.selection;
     const selectedText = editor.state.doc.textBetween(from, to);
@@ -43,38 +43,15 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
     try {
       let prompt = '';
       if (action === 'table') {
-        prompt = `You are an AI writing assistant. A user has selected text and wants to convert it into a markdown table.
-
-Your task is to: convert the text into a markdown table.
-
-- You MUST output ONLY the resulting markdown table.
-- Do NOT include any conversational parts like "Sure, here is..." or any other explanations.
-
-Here is the text to process:
----
-${selectedText}
----
-`;
+        prompt = `Convert the following text into a markdown table. Output only the markdown table, with no explanations or conversational text.\n\n---\n${selectedText}\n---`;
       } else {
-        prompt = `You are an AI writing assistant. A user has selected a piece of text in their editor and wants you to modify it.
-
-Your task is to: ${action} the text.
-
-- You MUST output ONLY the modified text.
-- Do NOT include any conversational parts like "Sure, here is..." or any other explanations.
-- Do NOT wrap the output in markdown quotes.
-
-Here is the text to process:
----
-${selectedText}
----
-`;
+        prompt = `You are an AI writing assistant. ${action} the following text. Output only the modified text, with no explanations or conversational text.\n\n---\n${selectedText}\n---`;
       }
       
       const result = await runGemini(prompt);
 
       if (!result || result.trim() === '') {
-        showError("The AI returned an empty response. Please try a different selection or action.");
+        showError("The AI returned an empty response. Please try again.");
         return;
       }
       
@@ -88,7 +65,7 @@ ${selectedText}
 
     } catch (error) {
       console.error("AI Action Error:", error);
-      showError("AI action failed. Please check your Gemini API key and network connection.");
+      showError("AI action failed. Please check your API key and connection.");
     } finally {
       setIsLoading(false);
     }
@@ -102,19 +79,11 @@ ${selectedText}
   };
 
   const handleCloseModal = () => {
-    setModalState({
-      isOpen: false,
-      originalText: '',
-      suggestedText: '',
-      from: 0,
-      to: 0,
-    });
+    setModalState({ isOpen: false, originalText: '', suggestedText: '', from: 0, to: 0 });
   };
 
   const handleClearContent = () => {
-    if (editor) {
-      editor.chain().focus().clearContent().run();
-    }
+    editor?.chain().focus().clearContent().run();
   };
 
   return (
@@ -129,7 +98,6 @@ ${selectedText}
             title="Clear all content"
           >
             <Trash2 className="h-4 w-4" />
-            <span className="sr-only">Clear content</span>
           </Button>
           <Tiptap.BubbleMenu
             pluginKey="bubbleMenu"
@@ -139,36 +107,19 @@ ${selectedText}
               appendTo: () => document.body,
               interactive: true,
             }}
-            shouldShow={({ editor }) => {
-              return editor.view.hasFocus() && !editor.state.selection.empty;
-            }}
+            shouldShow={({ editor }) => !editor.state.selection.empty}
           >
-            <div
-              className="p-0.5 rounded-lg bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 animate-gradient-move"
-              style={{ backgroundSize: '400% 400%' }}
-            >
-              <div className="flex flex-wrap items-center gap-1 rounded-md bg-background p-1">
-                {isLoading || modalState.isOpen ? (
-                  <div className="flex items-center justify-center px-3 py-1">
-                    <div className="h-6 w-6 rounded-full bg-gradient-to-br from-purple-400 to-pink-600 flex items-center justify-center animate-pulse">
-                      <Sparkles className="h-4 w-4 text-white" />
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <Button variant="ghost" size="sm" className="flex items-center gap-2" onClick={() => handleAiAction('improve')}>
-                      <Sparkles className="h-4 w-4" />
-                      Improve
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={() => handleAiAction('shorten')}>Shorten</Button>
-                    <Button variant="ghost" size="sm" onClick={() => handleAiAction('lengthen')}>Lengthen</Button>
-                    <Button variant="ghost" size="sm" className="flex items-center gap-2" onClick={() => handleAiAction('table')}>
-                      <Table className="h-4 w-4" />
-                      To Table
-                    </Button>
-                  </>
-                )}
-              </div>
+            <div className="p-1 rounded-lg bg-background border shadow-xl flex items-center gap-1">
+              <Button variant="ghost" size="sm" className="flex items-center gap-2" onClick={() => handleAiAction('improve')} disabled={isLoading}>
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                Improve
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => handleAiAction('shorten')} disabled={isLoading}>Shorten</Button>
+              <Button variant="ghost" size="sm" onClick={() => handleAiAction('lengthen')} disabled={isLoading}>Lengthen</Button>
+              <Button variant="ghost" size="sm" className="flex items-center gap-2" onClick={() => handleAiAction('table')} disabled={isLoading}>
+                <Table className="h-4 w-4" />
+                To Table
+              </Button>
             </div>
           </Tiptap.BubbleMenu>
         </>
@@ -185,4 +136,4 @@ ${selectedText}
   )
 }
 
-export default TiptapEditor
+export default TiptapEditor;
