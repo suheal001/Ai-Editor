@@ -43,17 +43,45 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
     try {
       let prompt = '';
       if (action === 'table') {
-        prompt = `You are an AI writing assistant. Your task is to convert the following text into a markdown table. Provide only the resulting markdown table, without any additional commentary. Text to convert: "${selectedText}"`;
+        prompt = `You are an AI writing assistant. A user has selected text and wants to convert it into a markdown table.
+
+Your task is to: convert the text into a markdown table.
+
+- You MUST output ONLY the resulting markdown table.
+- Do NOT include any conversational parts like "Sure, here is..." or any other explanations.
+
+Here is the text to process:
+---
+${selectedText}
+---
+`;
       } else {
-        prompt = `You are an AI writing assistant. Your task is to ${action} the following text. Provide only the resulting text, without any additional commentary. Text to process: "${selectedText}"`;
+        prompt = `You are an AI writing assistant. A user has selected a piece of text in their editor and wants you to modify it.
+
+Your task is to: ${action} the text.
+
+- You MUST output ONLY the modified text.
+- Do NOT include any conversational parts like "Sure, here is..." or any other explanations.
+- Do NOT wrap the output in markdown quotes.
+
+Here is the text to process:
+---
+${selectedText}
+---
+`;
       }
       
       const result = await runGemini(prompt);
+
+      if (!result || result.trim() === '') {
+        showError("The AI returned an empty response. Please try a different selection or action.");
+        return;
+      }
       
       setModalState({
         isOpen: true,
         originalText: selectedText,
-        suggestedText: result,
+        suggestedText: result.trim(),
         from,
         to,
       });
