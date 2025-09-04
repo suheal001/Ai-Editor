@@ -1,6 +1,6 @@
 import * as Tiptap from '@tiptap/react'
 import { Button } from './ui/button'
-import { Sparkles, Table } from 'lucide-react'
+import { Sparkles, Table, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { runGemini } from '@/lib/gemini'
 import { showError } from '@/utils/toast'
@@ -83,44 +83,62 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
     });
   };
 
+  const handleClearContent = () => {
+    if (editor) {
+      editor.chain().focus().clearContent().run();
+    }
+  };
+
   return (
     <div className="relative h-full w-full overflow-y-auto bg-card text-card-foreground rounded-lg">
       {editor && (
-        <Tiptap.BubbleMenu
-          editor={editor}
-          tippyOptions={{ duration: 100 }}
-          shouldShow={({ editor }) => {
-            return editor.view.hasFocus() && !editor.state.selection.empty;
-          }}
-        >
-          <div
-            className="p-0.5 rounded-lg bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 animate-gradient-move"
-            style={{ backgroundSize: '400% 400%' }}
+        <>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-2 right-2 z-10 text-muted-foreground hover:text-foreground"
+            onClick={handleClearContent}
+            title="Clear all content"
           >
-            <div className="flex flex-wrap items-center gap-1 rounded-md bg-background p-1">
-              {isLoading || modalState.isOpen ? (
-                <div className="flex items-center justify-center px-3 py-1">
-                  <div className="h-6 w-6 rounded-full bg-gradient-to-br from-purple-400 to-pink-600 flex items-center justify-center animate-pulse">
-                    <Sparkles className="h-4 w-4 text-white" />
+            <Trash2 className="h-4 w-4" />
+            <span className="sr-only">Clear content</span>
+          </Button>
+          <Tiptap.BubbleMenu
+            editor={editor}
+            tippyOptions={{ duration: 100 }}
+            shouldShow={({ editor }) => {
+              return editor.view.hasFocus() && !editor.state.selection.empty;
+            }}
+          >
+            <div
+              className="p-0.5 rounded-lg bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 animate-gradient-move"
+              style={{ backgroundSize: '400% 400%' }}
+            >
+              <div className="flex flex-wrap items-center gap-1 rounded-md bg-background p-1">
+                {isLoading || modalState.isOpen ? (
+                  <div className="flex items-center justify-center px-3 py-1">
+                    <div className="h-6 w-6 rounded-full bg-gradient-to-br from-purple-400 to-pink-600 flex items-center justify-center animate-pulse">
+                      <Sparkles className="h-4 w-4 text-white" />
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <>
-                  <Button variant="ghost" size="sm" className="flex items-center gap-2" onClick={() => handleAiAction('improve')}>
-                    <Sparkles className="h-4 w-4" />
-                    Improve
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={() => handleAiAction('shorten')}>Shorten</Button>
-                  <Button variant="ghost" size="sm" onClick={() => handleAiAction('lengthen')}>Lengthen</Button>
-                  <Button variant="ghost" size="sm" className="flex items-center gap-2" onClick={() => handleAiAction('table')}>
-                    <Table className="h-4 w-4" />
-                    To Table
-                  </Button>
-                </>
-              )}
+                ) : (
+                  <>
+                    <Button variant="ghost" size="sm" className="flex items-center gap-2" onClick={() => handleAiAction('improve')}>
+                      <Sparkles className="h-4 w-4" />
+                      Improve
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => handleAiAction('shorten')}>Shorten</Button>
+                    <Button variant="ghost" size="sm" onClick={() => handleAiAction('lengthen')}>Lengthen</Button>
+                    <Button variant="ghost" size="sm" className="flex items-center gap-2" onClick={() => handleAiAction('table')}>
+                      <Table className="h-4 w-4" />
+                      To Table
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
-          </div>
-        </Tiptap.BubbleMenu>
+          </Tiptap.BubbleMenu>
+        </>
       )}
       <Tiptap.EditorContent editor={editor} />
       <PreviewModal
