@@ -1,44 +1,34 @@
 import * as Tiptap from '@tiptap/react'
-import BubbleMenuExtension from '@tiptap/extension-bubble-menu'
-import StarterKit from '@tiptap/starter-kit'
 import { Button } from './ui/button'
-import { Loader2, Sparkles } from 'lucide-react'
+import { Loader2, Sparkles, Table } from 'lucide-react'
 import { useState } from 'react'
 import { runGemini } from '@/lib/gemini'
 import { showError } from '@/utils/toast'
+import PreviewModal from './PreviewModal'
 
-const TiptapEditor = () => {
+interface TiptapEditorProps {
+  editor: Tiptap.Editor | null;
+}
+
+interface ModalState {
+  isOpen: boolean;
+  originalText: string;
+  suggestedText: string;
+  from: number;
+  to: number;
+}
+
+const TiptapEditor = ({ editor }: TiptapEditorProps) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [modalState, setModalState] = useState<ModalState>({
+    isOpen: false,
+    originalText: '',
+    suggestedText: '',
+    from: 0,
+    to: 0,
+  });
 
-  const editor = Tiptap.useEditor({
-    extensions: [
-      StarterKit.configure({
-        heading: {
-          levels: [1, 2, 3],
-        },
-      }),
-      BubbleMenuExtension,
-    ],
-    content: `
-      <h1>Welcome to your AI-Powered Editor!</h1>
-      <p>This is a demonstration of a collaborative editor built with Tiptap, React, and Tailwind CSS. The goal is to integrate AI features directly into the writing experience.</p>
-      <p><strong>To get started, select any piece of text.</strong> A floating toolbar will appear with several options:</p>
-      <ul>
-        <li><strong>Improve:</strong> Fix grammar and improve the writing style.</li>
-        <li><strong>Shorten:</strong> Make the selected text more concise.</li>
-        <li><strong>Lengthen:</strong> Expand on the selected text to add more detail.</li>
-      </ul>
-      <p>On the right-hand side, you'll find a chat panel where you can interact with an AI assistant. In future steps, this assistant will be able to read and modify the document content based on your commands.</p>
-      <p>Happy writing!</p>
-    `,
-    editorProps: {
-      attributes: {
-        class: 'prose dark:prose-invert max-w-none p-6 focus:outline-none h-full',
-      },
-    },
-  })
-
-  const handleAiAction = async (action: 'improve' | 'shorten' | 'lengthen') => {
+  const handleAiAction = async (action: 'improve' | 'shorten' | 'lengthen' | 'table') => {
     if (!editor) return;
 
     const { from, to } = editor.state.selection;
@@ -51,10 +41,22 @@ const TiptapEditor = () => {
 
     setIsLoading(true);
     try {
-      const prompt = `${action.charAt(0).toUpperCase() + action.slice(1)} the following text: "${selectedText}"`;
+      let prompt = '';
+      if (action === 'table') {
+        prompt = `Convert the following text into a markdown table: "${selectedText}"`;
+      } else {
+        prompt = `${action.charAt(0).toUpperCase() + action.slice(1)} the following text: "${selectedText}"`;
+      }
+      
       const result = await runGemini(prompt);
       
-      editor.chain().focus().deleteRange({ from, to }).insertContent(result).run();
+      setModalState({
+        isOpen: true,
+        originalText: selectedText,
+        suggestedText: result,
+        from,
+        to,
+      });
 
     } catch (error) {
       console.error(error);
@@ -62,6 +64,23 @@ const TiptapEditor = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleConfirm = () => {
+    if (!editor) return;
+    const { from, to, suggestedText } = modalState;
+    editor.chain().focus().deleteRange({ from, to }).insertContent(suggestedText).run();
+    handleCloseModal();
+  };
+
+  const handleCloseModal = () => {
+    setModalState({
+      isOpen: false,
+      originalText: '',
+      suggestedText: '',
+      from: 0,
+      to: 0,
+    });
   };
 
   return (
@@ -75,10 +94,21 @@ const TiptapEditor = () => {
             </Button>
             <Button variant="ghost" size="sm" onClick={() => handleAiAction('shorten')} disabled={isLoading}>Shorten</Button>
             <Button variant="ghost" size="sm" onClick={() => handleAiAction('lengthen')} disabled={isLoading}>Lengthen</Button>
+            <Button variant="ghost" size="sm" className="flex items-center gap-2" onClick={() => handleAiAction('table')} disabled={isLoading}>
+              <Table className="h-4 w-4" />
+              To Table
+            </Button>
           </div>
         </Tiptap.BubbleMenu>
       )}
       <Tiptap.EditorContent editor={editor} />
+      <PreviewModal
+        isOpen={modalState.isOpen}
+        onClose={handleCloseModal}
+        onConfirm={handleConfirm}
+        originalText={modalState.originalText}
+        suggestedText={modalState.suggestedText}
+      />
     </div>
   )
 }

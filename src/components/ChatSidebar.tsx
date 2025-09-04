@@ -6,15 +6,20 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { useState, useRef, useEffect } from 'react'
 import { runGemini } from '@/lib/gemini'
 import { showError } from '@/utils/toast'
+import * as Tiptap from '@tiptap/react'
 
 interface Message {
   role: 'user' | 'model';
   content: string;
 }
 
-const ChatSidebar = () => {
+interface ChatSidebarProps {
+  editor: Tiptap.Editor | null;
+}
+
+const ChatSidebar = ({ editor }: ChatSidebarProps) => {
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'model', content: 'Hello! How can I help you today?' }
+    { role: 'model', content: 'Hello! How can I help you with the document today?' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -30,7 +35,7 @@ const ChatSidebar = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isLoading || !editor) return;
 
     const userMessage: Message = { role: 'user', content: input };
     setMessages(prev => [...prev, userMessage]);
@@ -38,7 +43,9 @@ const ChatSidebar = () => {
     setIsLoading(true);
 
     try {
-      const prompt = `You are an AI writing assistant. A user has sent you the following message: "${input}". Respond in a helpful and concise manner.`;
+      const documentContent = editor.getText();
+      const prompt = `You are an AI writing assistant. The user is working on the following document:\n\n---\n${documentContent}\n---\n\nThe user has sent you the following message: "${input}". Respond to the user's message. If you suggest a change to the document, provide the full text of your suggested change so the user can copy and paste it.`;
+      
       const aiResponse = await runGemini(prompt);
       const modelMessage: Message = { role: 'model', content: aiResponse };
       setMessages(prev => [...prev, modelMessage]);
@@ -91,9 +98,9 @@ const ChatSidebar = () => {
               autoComplete="off"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              disabled={isLoading}
+              disabled={isLoading || !editor}
             />
-            <Button type="submit" size="icon" disabled={isLoading}>
+            <Button type="submit" size="icon" disabled={isLoading || !editor}>
               <Send className="h-4 w-4" />
               <span className="sr-only">Send</span>
             </Button>
