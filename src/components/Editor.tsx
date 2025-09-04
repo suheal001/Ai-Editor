@@ -1,4 +1,4 @@
-import { useEditor, EditorContent, BubbleMenu } from '@tiptap/react'
+import { useEditor, EditorContent, BubbleMenu as BubbleMenuComponent } from '@tiptap/react'
 import BubbleMenuExtension from '@tiptap/extension-bubble-menu'
 import StarterKit from '@tiptap/starter-kit'
 import { Button } from './ui/button'
@@ -12,6 +12,7 @@ const TiptapEditor = () => {
           levels: [1, 2, 3],
         },
       }),
+      // Use the imported extension
       BubbleMenuExtension,
     ],
     content: `
@@ -36,7 +37,8 @@ const TiptapEditor = () => {
   return (
     <div className="relative h-full w-full overflow-y-auto bg-card text-card-foreground rounded-lg">
       {editor && (
-        <BubbleMenu editor={editor} tippyOptions={{ duration: 100 }}>
+        // Use the aliased component
+        <BubbleMenuComponent editor={editor} tippyOptions={{ duration: 100 }}>
           <div className="flex items-center space-x-1 rounded-md bg-background border p-1 shadow-lg">
             <Button variant="ghost" size="sm" className="flex items-center gap-2">
               <Sparkles className="h-4 w-4" />
@@ -45,7 +47,7 @@ const TiptapEditor = () => {
             <Button variant="ghost" size="sm">Shorten</Button>
             <Button variant="ghost" size="sm">Lengthen</Button>
           </div>
-        </BubbleMenu>
+        </BubbleMenuComponent>
       )}
       <EditorContent editor={editor} />
     </div>
