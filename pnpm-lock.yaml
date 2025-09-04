@@ -95,6 +95,9 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.56.2
         version: 5.74.4(react@18.3.1)
+      '@tiptap/extension-bubble-menu':
+        specifier: ^3.4.1
+        version: 3.4.1(@tiptap/core@3.4.1(@tiptap/pm@3.4.1))(@tiptap/pm@3.4.1)
       '@tiptap/pm':
         specifier: ^3.4.1
         version: 3.4.1
@@ -3763,7 +3766,6 @@ snapshots:
       '@floating-ui/dom': 1.6.13
       '@tiptap/core': 3.4.1(@tiptap/pm@3.4.1)
       '@tiptap/pm': 3.4.1
-    optional: true
 
   '@tiptap/extension-bullet-list@3.4.1(@tiptap/extension-list@3.4.1(@tiptap/core@3.4.1(@tiptap/pm@3.4.1))(@tiptap/pm@3.4.1))':
     dependencies:
