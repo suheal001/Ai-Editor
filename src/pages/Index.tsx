@@ -9,7 +9,8 @@ import {
 } from "@/components/ui/resizable";
 import { useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
-import { BubbleMenu } from '@tiptap/extension-bubble-menu'
+// Use an alias to distinguish the extension from the component
+import { BubbleMenu as BubbleMenuExtension } from '@tiptap/extension-bubble-menu'
 
 const Index = () => {
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
@@ -29,7 +30,6 @@ const Index = () => {
     localStorage.setItem('gemini_api_key', apiKey);
     setHasApiKey(true);
     setIsApiKeyModalOpen(false);
-    // Reload to ensure the gemini client is re-initialized with the new key
     window.location.reload();
   };
 
@@ -40,7 +40,8 @@ const Index = () => {
           levels: [1, 2, 3],
         },
       }),
-      BubbleMenu.configure({
+      // Configure the extension that powers the floating menu
+      BubbleMenuExtension.configure({
         pluginKey: "bubbleMenu",
       }),
     ],
