@@ -60,8 +60,8 @@ const ChatSidebar = ({ editor }: ChatSidebarProps) => {
       setMessages(prev => [...prev, modelMessage]);
     } catch (error)
       {
-      console.error(error);
-      showError("The AI assistant is not available right now.");
+      console.error("AI Chat Error:", error);
+      showError("The AI assistant is not available. Please check your Gemini API key and network connection.");
       setMessages(prev => prev.slice(0, -1)); // Remove user message on error
     } finally {
       setIsLoading(false);

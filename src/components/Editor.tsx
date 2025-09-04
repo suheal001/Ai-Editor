@@ -59,8 +59,8 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
       });
 
     } catch (error) {
-      console.error(error);
-      showError("An error occurred while processing your request.");
+      console.error("AI Action Error:", error);
+      showError("AI action failed. Please check your Gemini API key and network connection.");
     } finally {
       setIsLoading(false);
     }
