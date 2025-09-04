@@ -65,9 +65,8 @@ const Index = () => {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
-      BubbleMenuExtension.configure({
-        pluginKey: "aiBubbleMenu",
-      }),
+      // Use the default BubbleMenu extension without a custom key for stability
+      BubbleMenuExtension,
     ],
     content: `
       <h1>Welcome to your AI-Powered Editor!</h1>
@@ -179,8 +178,15 @@ const Index = () => {
       {editor && (
         <BubbleMenu
           editor={editor}
-          pluginKey="aiBubbleMenu"
-          tippyOptions={{ duration: 100, appendTo: () => document.body }}
+          tippyOptions={{
+            duration: 100,
+            appendTo: () => document.body,
+            placement: 'top',
+          }}
+          shouldShow={({ view, state, editor: currentEditor }) => {
+            const { selection } = state;
+            return view.hasFocus() && !selection.empty && currentEditor.isEditable;
+          }}
           className="p-1 rounded-lg bg-background border shadow-xl flex items-center gap-1 z-50"
         >
           <AiButton action="improve"><Sparkles className="h-4 w-4" /> Improve</AiButton>
