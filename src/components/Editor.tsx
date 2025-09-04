@@ -12,7 +12,6 @@ const TiptapEditor = () => {
           levels: [1, 2, 3],
         },
       }),
-      // The BubbleMenu extension is required for the BubbleMenu component to work
       BubbleMenuExtension,
     ],
     content: `
@@ -37,7 +36,6 @@ const TiptapEditor = () => {
   return (
     <div className="relative h-full w-full overflow-y-auto bg-card text-card-foreground rounded-lg">
       {editor && (
-        // The BubbleMenu component comes from @tiptap/react
         <BubbleMenu editor={editor} tippyOptions={{ duration: 100 }}>
           <div className="flex items-center space-x-1 rounded-md bg-background border p-1 shadow-lg">
             <Button variant="ghost" size="sm" className="flex items-center gap-2">
