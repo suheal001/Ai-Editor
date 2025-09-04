@@ -97,7 +97,7 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
             className="p-0.5 rounded-lg bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 animate-gradient-move"
             style={{ backgroundSize: '400% 400%' }}
           >
-            <div className="flex items-center space-x-1 rounded-md bg-background p-1">
+            <div className="flex flex-wrap items-center gap-1 rounded-md bg-background p-1">
               {isLoading || modalState.isOpen ? (
                 <div className="flex items-center justify-center px-3 py-1">
                   <div className="h-6 w-6 rounded-full bg-gradient-to-br from-purple-400 to-pink-600 flex items-center justify-center animate-pulse">
