@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/resizable";
 import { useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
-import BubbleMenuExtension from '@tiptap/extension-bubble-menu'
+import { BubbleMenu } from '@tiptap/extension-bubble-menu'
 
 const Index = () => {
   const editor = useEditor({
@@ -17,7 +17,9 @@ const Index = () => {
           levels: [1, 2, 3],
         },
       }),
-      BubbleMenuExtension,
+      BubbleMenu.configure({
+        pluginKey: "bubbleMenu",
+      }),
     ],
     content: `
       <h1>Welcome to your AI-Powered Editor!</h1>

@@ -132,6 +132,7 @@ ${selectedText}
             <span className="sr-only">Clear content</span>
           </Button>
           <Tiptap.BubbleMenu
+            pluginKey="bubbleMenu"
             editor={editor}
             tippyOptions={{ 
               duration: 100,
