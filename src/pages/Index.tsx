@@ -117,12 +117,12 @@ const Index = () => {
 
   const desktopLayout = (
     <ResizablePanelGroup direction="horizontal" className="flex-grow rounded-lg border">
-      <ResizablePanel defaultSize={70} className="overflow-auto relative">
+      <ResizablePanel defaultSize={50} className="overflow-auto relative">
         <TiptapEditor editor={editor} />
         {editor && <FloatingToolbar editor={editor} onEditWithAI={handleEditWithAI} />}
       </ResizablePanel>
       <ResizableHandle withHandle />
-      <ResizablePanel defaultSize={30} minSize={20}>
+      <ResizablePanel defaultSize={50} minSize={20}>
         <ChatSidebar editor={editor} />
       </ResizablePanel>
     </ResizablePanelGroup>
