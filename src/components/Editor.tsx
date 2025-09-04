@@ -43,9 +43,9 @@ const TiptapEditor = ({ editor }: TiptapEditorProps) => {
     try {
       let prompt = '';
       if (action === 'table') {
-        prompt = `Convert the following text into a markdown table: "${selectedText}"`;
+        prompt = `You are an AI writing assistant. Your task is to convert the following text into a markdown table. Provide only the resulting markdown table, without any additional commentary. Text to convert: "${selectedText}"`;
       } else {
-        prompt = `${action.charAt(0).toUpperCase() + action.slice(1)} the following text: "${selectedText}"`;
+        prompt = `You are an AI writing assistant. Your task is to ${action} the following text. Provide only the resulting text, without any additional commentary. Text to process: "${selectedText}"`;
       }
       
       const result = await runGemini(prompt);
