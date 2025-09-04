@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react';
 import ChatSidebar from "@/components/ChatSidebar";
 import TiptapEditor from "@/components/Editor";
 import ApiKeyDialog from '@/components/ApiKeyDialog';
+import Header from '@/components/Header';
+import { useMediaQuery } from '@/hooks/use-media-query';
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { BubbleMenu as BubbleMenuExtension } from '@tiptap/extension-bubble-menu'
@@ -14,6 +17,8 @@ import { BubbleMenu as BubbleMenuExtension } from '@tiptap/extension-bubble-menu
 const Index = () => {
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
   const [hasApiKey, setHasApiKey] = useState(false);
+  const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
+  const isDesktop = useMediaQuery('(min-width: 768px)');
 
   useEffect(() => {
     const key = localStorage.getItem('gemini_api_key');
@@ -34,12 +39,7 @@ const Index = () => {
 
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({
-        heading: {
-          levels: [1, 2, 3],
-        },
-      }),
-      // The extension that powers the floating menu
+      StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
       BubbleMenuExtension,
     ],
     content: `
@@ -52,7 +52,7 @@ const Index = () => {
         <li><strong>Lengthen:</strong> Expand on the selected text to add more detail.</li>
         <li><strong>To Table:</strong> Convert the selected text into a markdown table.</li>
       </ul>
-      <p>On the right-hand side, you'll find a chat panel where you can interact with an AI assistant. The assistant can now read your document to provide context-aware help.</p>
+      <p>On the right-hand side (or in the slide-up drawer on mobile), you'll find a chat panel where you can interact with an AI assistant.</p>
       <p>Happy writing!</p>
     `,
     editorProps: {
@@ -61,27 +61,42 @@ const Index = () => {
       },
     },
     editable: hasApiKey,
-  })
+  });
+
+  const desktopLayout = (
+    <ResizablePanelGroup direction="horizontal" className="flex-grow rounded-lg border">
+      <ResizablePanel defaultSize={70}>
+        <TiptapEditor editor={editor} />
+      </ResizablePanel>
+      <ResizableHandle withHandle />
+      <ResizablePanel defaultSize={30} minSize={20}>
+        <ChatSidebar editor={editor} />
+      </ResizablePanel>
+    </ResizablePanelGroup>
+  );
+
+  const mobileLayout = (
+    <div className="flex-grow flex flex-col min-h-0">
+      <div className="flex-grow border rounded-lg overflow-hidden">
+        <TiptapEditor editor={editor} />
+      </div>
+      <Drawer open={isMobileChatOpen} onOpenChange={setIsMobileChatOpen}>
+        {/* The trigger is in the header, so this is just for the content */}
+        <DrawerContent className="h-[75vh]">
+          <ChatSidebar editor={editor} />
+        </DrawerContent>
+      </Drawer>
+    </div>
+  );
 
   return (
     <>
       <ApiKeyDialog isOpen={isApiKeyModalOpen} onSave={handleSaveApiKey} />
-      <div className="h-screen w-screen bg-background text-foreground p-4 flex flex-col gap-4">
-        <header className="text-center">
-          <h1 className="text-2xl font-bold">Live Collaborative Editor</h1>
-          <p className="text-muted-foreground">
-            {hasApiKey ? "Select text in the editor to see AI options." : "Please enter your Gemini API key to enable AI features."}
-          </p>
-        </header>
-        <ResizablePanelGroup direction="horizontal" className="flex-grow rounded-lg border">
-          <ResizablePanel defaultSize={70}>
-            <TiptapEditor editor={editor} />
-          </ResizablePanel>
-          <ResizableHandle withHandle />
-          <ResizablePanel defaultSize={30} minSize={20}>
-            <ChatSidebar editor={editor} />
-          </ResizablePanel>
-        </ResizablePanelGroup>
+      <div className="h-screen w-screen bg-background text-foreground flex flex-col">
+        <Header isMobile={!isDesktop} onMobileChatClick={() => setIsMobileChatOpen(true)} />
+        <main className="flex-grow flex flex-col gap-4 p-4">
+          {isDesktop ? desktopLayout : mobileLayout}
+        </main>
       </div>
     </>
   );
